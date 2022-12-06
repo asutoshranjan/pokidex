@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:rest_flutter/src/Classes/pokemon.dart';
+import 'package:rest_flutter/src/Widgets/characterTile.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -121,9 +122,7 @@ class _HomePageState extends State<HomePage> {
                     itemCount: pokemons.length,
                     itemBuilder: (context, index) {
                       Pokemon p = pokemons[index];
-                      return ListTile(
-                        title: Text(p.name),
-                      );
+                      return CharacterTile(name: p.name, image: p.image);
                     }),
           ),
         ],
