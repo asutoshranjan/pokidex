@@ -19,6 +19,14 @@ class _HomePageState extends State<HomePage> {
   String output = "";
   bool loading = true;
   List<Pokemon> pokemons = [];
+  List<Pokemon> searchPok = [];
+  final searchController = TextEditingController();
+
+  @override
+  void dispose() {
+    searchController.dispose();
+    super.dispose();
+  }
 
   Future<http.Response?> fetchPokemon(String uri) async {
     final responses = await http.get(Uri.parse(uri));
@@ -53,25 +61,24 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    double screenheight = MediaQuery.of(context).size.height;
     return Scaffold(
       appBar: AppBar(
         title: const Text("Rick and Morty"),
         centerTitle: true,
       ),
       body: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          const SizedBox(
-            height: 10,
-          ),
-          Flexible(
-            flex: 1,
+          SizedBox(
+            height: 0.03 * screenheight,
             child: Text(
               "Page - $page",
-              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
             ),
           ),
-          Flexible(
-            flex: 1,
+          SizedBox(
+            height: 0.06 * screenheight,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -112,18 +119,56 @@ class _HomePageState extends State<HomePage> {
               ],
             ),
           ),
-          Flexible(
-            flex: 10,
-            child: loading
-                ? const Center(
-                    child: CircularProgressIndicator(),
-                  )
-                : ListView.builder(
-                    itemCount: pokemons.length,
+          SizedBox(
+            height: 0.05 * screenheight,
+            width: 0.85 * MediaQuery.of(context).size.width,
+            child: TextField(
+              controller: searchController,
+              onSubmitted: (val) {
+                for (int i = 0; i < pokemons.length; i++) {
+                  Pokemon p = pokemons[i];
+                  String name = p.name.toLowerCase();
+                  if (name.contains(val)) {
+                    setState(() {
+                      searchPok.add(p);
+                    });
+                  }
+                }
+              },
+              decoration: InputDecoration(
+                border: OutlineInputBorder(),
+                hintText: 'Enter a search term',
+                suffixIcon: IconButton(
+                  onPressed: () {
+                    searchController.clear();
+                    setState(() {
+                      searchPok = [];
+                    });
+                  },
+                  icon: Icon(Icons.clear),
+                ),
+              ),
+            ),
+          ),
+          SizedBox(
+            height: 0.75 * screenheight,
+            child: searchPok.length != 0
+                ? ListView.builder(
+                    itemCount: searchPok.length,
                     itemBuilder: (context, index) {
                       Pokemon p = pokemons[index];
                       return CharacterTile(name: p.name, image: p.image);
-                    }),
+                    })
+                : loading
+                    ? const Center(
+                        child: CircularProgressIndicator(),
+                      )
+                    : ListView.builder(
+                        itemCount: pokemons.length,
+                        itemBuilder: (context, index) {
+                          Pokemon p = pokemons[index];
+                          return CharacterTile(name: p.name, image: p.image);
+                        }),
           ),
         ],
       ),

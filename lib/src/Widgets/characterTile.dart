@@ -3,10 +3,12 @@ import 'package:flutter/material.dart';
 class CharacterTile extends StatelessWidget {
   final String name;
   final String image;
-  const CharacterTile({Key? key, required this.name, required this.image}) : super(key: key);
+  const CharacterTile({Key? key, required this.name, required this.image})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    double screenwidth = MediaQuery.of(context).size.width;
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Material(
@@ -27,8 +29,17 @@ class CharacterTile extends StatelessWidget {
                   ),
                   child: Image.network(image),
                 ),
-                SizedBox(width: 10,),
-                Text(name, style: TextStyle(fontSize: 20),),
+                const SizedBox(
+                  width: 20,
+                ),
+                Container(
+                  width: 0.7*screenwidth,
+                  child: Text(
+                    name,
+                    style: TextStyle(fontSize: 20),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
               ],
             ),
           ),
