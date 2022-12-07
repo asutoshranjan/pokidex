@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:rest_flutter/src/Classes/pokemon.dart';
+import 'package:rest_flutter/src/Classes/rmCharacter.dart';
 import 'package:rest_flutter/src/Widgets/characterTile.dart';
 
 class HomePage extends StatefulWidget {
@@ -18,8 +18,8 @@ class _HomePageState extends State<HomePage> {
   int page = 1;
   String output = "";
   bool loading = true;
-  List<Pokemon> pokemons = [];
-  List<Pokemon> searchPok = [];
+  List<RMCharacter> pokemons = [];
+  List<RMCharacter> searchPok = [];
   String prevValue = "";
   final searchController = TextEditingController();
 
@@ -40,7 +40,7 @@ class _HomePageState extends State<HomePage> {
       for (int i = 0; i < results.length; i++) {
         var character = results[i] as Map<String, dynamic>;
         setState(() {
-          pokemons.add(Pokemon.fromJson(character));
+          pokemons.add(RMCharacter.fromJson(character));
         });
       }
       setState(() {
@@ -167,6 +167,7 @@ class _HomePageState extends State<HomePage> {
                       searchController.clear();
                       setState(() {
                         searchPok = [];
+                        prevValue = "";
                       });
                     },
                     icon: Icon(Icons.clear),
@@ -181,8 +182,8 @@ class _HomePageState extends State<HomePage> {
                   ? ListView.builder(
                       itemCount: searchPok.length,
                       itemBuilder: (context, index) {
-                        Pokemon p = searchPok[index];
-                        return CharacterTile(name: p.name, image: p.image);
+                        RMCharacter p = searchPok[index];
+                        return CharacterTile(name: p.name, image: p.image, species: p.species, gender: p.gender, status: p.status);
                       })
                   : loading
                       ? const Center(
@@ -191,8 +192,8 @@ class _HomePageState extends State<HomePage> {
                       : ListView.builder(
                           itemCount: pokemons.length,
                           itemBuilder: (context, index) {
-                            Pokemon p = pokemons[index];
-                            return CharacterTile(name: p.name, image: p.image);
+                            RMCharacter p = pokemons[index];
+                            return CharacterTile(name: p.name, image: p.image, species: p.species, gender: p.gender, status: p.status);
                           }),
             ),
           ],
