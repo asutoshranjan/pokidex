@@ -20,6 +20,7 @@ class _HomePageState extends State<HomePage> {
   bool loading = true;
   List<Pokemon> pokemons = [];
   List<Pokemon> searchPok = [];
+  String prevValue = "";
   final searchController = TextEditingController();
 
   @override
@@ -52,6 +53,20 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  void searchQuery(String query) {
+    for(var pokemon in pokemons){
+      if(pokemon.name.toLowerCase().contains(query.toLowerCase())){
+        setState(() {
+          searchPok.add(pokemon);
+        });
+      }
+    }
+    print("Search Result");
+    for(var pokemon in searchPok){
+      print(pokemon.name);
+    }
+  }
+
   @override
   void initState() {
     // TODO: implement initState
@@ -67,110 +82,121 @@ class _HomePageState extends State<HomePage> {
         title: const Text("Rick and Morty"),
         centerTitle: true,
       ),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          SizedBox(
-            height: 0.03 * screenheight,
-            child: Text(
-              "Page - $page",
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            const SizedBox(
+              height: 15,
             ),
-          ),
-          SizedBox(
-            height: 0.06 * screenheight,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                IconButton(
-                  onPressed: () {
-                    if (page > 1) {
-                      setState(() {
-                        page -= 1;
-                        pokemons = [];
-                        loading = true;
-                        nurl = url + "?page=$page";
-                        fetchPokemon(nurl);
-                      });
-                    }
-                  },
-                  icon: Icon(
-                    Icons.arrow_back,
-                    color: page == 1 ? Colors.grey : Colors.black,
-                  ),
-                ),
-                IconButton(
-                  onPressed: () {
-                    if (page <= 41) {
-                      setState(() {
-                        page += 1;
-                        pokemons = [];
-                        loading = true;
-                        nurl = url + "?page=$page";
-                        fetchPokemon(nurl);
-                      });
-                    }
-                  },
-                  icon: Icon(
-                    Icons.arrow_forward,
-                    color: page == 42 ? Colors.grey : Colors.black,
-                  ),
-                ),
-              ],
+            SizedBox(
+              height: 0.03 * screenheight,
+              child: Text(
+                "Page - $page",
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+              ),
             ),
-          ),
-          SizedBox(
-            height: 0.05 * screenheight,
-            width: 0.85 * MediaQuery.of(context).size.width,
-            child: TextField(
-              controller: searchController,
-              onSubmitted: (val) {
-                for (int i = 0; i < pokemons.length; i++) {
-                  Pokemon p = pokemons[i];
-                  String name = p.name.toLowerCase();
-                  if (name.contains(val)) {
+            SizedBox(
+              height: 0.06 * screenheight,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  IconButton(
+                    onPressed: () {
+                      if (page > 1) {
+                        setState(() {
+                          page -= 1;
+                          pokemons = [];
+                          searchPok = [];
+                          loading = true;
+                          nurl = url + "?page=$page";
+                          prevValue = "";
+                          fetchPokemon(nurl);
+                        });
+                      }
+                    },
+                    icon: Icon(
+                      Icons.arrow_back,
+                      color: page == 1 ? Colors.grey : Colors.black,
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: () {
+                      if (page <= 41) {
+                        setState(() {
+                          page += 1;
+                          pokemons = [];
+                          searchPok = [];
+                          loading = true;
+                          nurl = url + "?page=$page";
+                          prevValue = "";
+                          fetchPokemon(nurl);
+                        });
+                      }
+                    },
+                    icon: Icon(
+                      Icons.arrow_forward,
+                      color: page == 42 ? Colors.grey : Colors.black,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(
+              height: 0.075 * screenheight,
+              width: 0.85 * MediaQuery.of(context).size.width,
+              child: TextField(
+                controller: searchController,
+                onSubmitted: (val) {
+                  if(prevValue.toLowerCase() != val.toLowerCase()){
+                    searchQuery(val);
                     setState(() {
-                      searchPok.add(p);
+                      prevValue = val;
                     });
                   }
-                }
-              },
-              decoration: InputDecoration(
-                border: OutlineInputBorder(),
-                hintText: 'Enter a search term',
-                suffixIcon: IconButton(
-                  onPressed: () {
-                    searchController.clear();
-                    setState(() {
-                      searchPok = [];
-                    });
-                  },
-                  icon: Icon(Icons.clear),
+                },
+                onChanged: (val) {
+                  setState(() {
+                    searchPok = [];
+                  });
+                },
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(),
+                  hintText: 'Enter a search term',
+                  suffixIcon: IconButton(
+                    onPressed: () {
+                      searchController.clear();
+                      setState(() {
+                        searchPok = [];
+                      });
+                    },
+                    icon: Icon(Icons.clear),
+                  ),
                 ),
               ),
             ),
-          ),
-          SizedBox(
-            height: 0.75 * screenheight,
-            child: searchPok.length != 0
-                ? ListView.builder(
-                    itemCount: searchPok.length,
-                    itemBuilder: (context, index) {
-                      Pokemon p = pokemons[index];
-                      return CharacterTile(name: p.name, image: p.image);
-                    })
-                : loading
-                    ? const Center(
-                        child: CircularProgressIndicator(),
-                      )
-                    : ListView.builder(
-                        itemCount: pokemons.length,
-                        itemBuilder: (context, index) {
-                          Pokemon p = pokemons[index];
-                          return CharacterTile(name: p.name, image: p.image);
-                        }),
-          ),
-        ],
+            const SizedBox(height: 10),
+            SizedBox(
+              height: 0.7 * screenheight,
+              child: searchPok.length != 0
+                  ? ListView.builder(
+                      itemCount: searchPok.length,
+                      itemBuilder: (context, index) {
+                        Pokemon p = searchPok[index];
+                        return CharacterTile(name: p.name, image: p.image);
+                      })
+                  : loading
+                      ? const Center(
+                          child: CircularProgressIndicator(),
+                        )
+                      : ListView.builder(
+                          itemCount: pokemons.length,
+                          itemBuilder: (context, index) {
+                            Pokemon p = pokemons[index];
+                            return CharacterTile(name: p.name, image: p.image);
+                          }),
+            ),
+          ],
+        ),
       ),
     );
   }
